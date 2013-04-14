@@ -45,7 +45,7 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
             PaneManager.view_positions.append([view, group, index])
             groups.append(group)
 
-        for group in groups:
+        for group in set(groups):
             view = w.active_view_in_group(group)
             PaneManager.active_views.append(view)
 
