@@ -1,4 +1,4 @@
-# PaneMaximizer
+## PaneMaximizer
 
 Easily maximize/unmaximize a pane without reseting your multi-pane setup.
 
@@ -19,3 +19,7 @@ Just press <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd> and the active pane 
 Press <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd> another time and its back:
 
 ![dual pane](https://raw.github.com/jisaacks/PaneMaximizer/ba0b8850c2637709428db88b072d6ca79f54543c/dual-thumb.png)
+
+### Installation
+
+This is a new project, so the only installation method is via `git clone`. I will be adding to [Package Control](http://wbond.net/sublime_packages/package_control) when I believe it is ready for prime time.
