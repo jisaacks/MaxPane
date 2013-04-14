@@ -12,9 +12,7 @@ So lets say you have this multi pane setup:
 
 and you want to maximize the right pane for a sec.
 
-Just press <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd>
-
-and the active pane is now maximized:
+Just press <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd> and the active pane is now maximized:
 
 ![single pane](https://raw.github.com/jisaacks/PaneMaximizer/ba0b8850c2637709428db88b072d6ca79f54543c/single-thumb.png)
 
