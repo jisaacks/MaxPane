@@ -5,6 +5,7 @@ import sublime, sublime_plugin
 class PaneManager:
     last_layout = False
     view_positions = []
+    active_views = []
 
 # ------
 
@@ -35,10 +36,18 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
         }
 
         PaneManager.view_positions = []
+        PaneManager.active_views = []
+
+        groups = []
         
         for view in w.views():
             group, index = w.get_view_index(view)
             PaneManager.view_positions.append([view, group, index])
+            groups.append(group)
+
+        for group in groups:
+            view = w.active_view_in_group(group)
+            PaneManager.active_views.append(view)
 
         w.set_layout(new_layout)
 
@@ -58,6 +67,9 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
 
             for positions in PaneManager.view_positions:
                 w.set_view_index(*positions)
+
+            for view in PaneManager.active_views:
+                w.focus_view(view)
 
             PaneManager.view_positions = []
 
