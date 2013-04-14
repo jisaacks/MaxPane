@@ -1,0 +1,3 @@
+[
+    { "keys": ["super+shift+enter"], "command": "pane_maximizer" }
+]
