@@ -4,7 +4,7 @@ Easily maximize/unmaximize a pane without reseting your multi-pane setup.
 
 Ever use a multi pane setup in Sublime Text and want to maximize a single pane for a bit, *and* be able to switch back to the multi pane layout again when done? *Without losing the positions all your files were in.* You know like how iTerm does.
 
-*Then PaneMaximizer is for you.*
+*Then MaxPane is for you.*
 
 So lets say you have this multi pane setup:
 

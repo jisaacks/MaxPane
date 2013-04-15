@@ -9,7 +9,7 @@ class PaneManager:
 
 # ------
 
-class PaneMaximizerCommand(sublime_plugin.WindowCommand):
+class MaxPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
         if w.num_groups() > 1:
