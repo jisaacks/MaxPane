@@ -9,7 +9,6 @@ class PaneManager:
 
 class MaxPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
-        print("MAX PANING")
         w = self.window
         if PaneManager.last_layout:
             w.run_command("unmaximize_pane")
