@@ -4,73 +4,42 @@ import sublime, sublime_plugin
 
 class PaneManager:
     last_layout = False
-    view_positions = []
-    active_views = []
 
 # ------
 
 class MaxPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
+        print("MAX PANING")
         w = self.window
-        if w.num_groups() > 1:
-            w.run_command("maximize_pane")
-        elif PaneManager.last_layout:
+        if PaneManager.last_layout:
             w.run_command("unmaximize_pane")
+        else:
+            w.run_command("maximize_pane")
 
 # ------
 
 class MaximizePaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-
-        if w.num_groups() == 1:
-            return False
-            exit()
-
+        g = w.active_group()
+        l = w.get_layout()
         PaneManager.last_layout = w.get_layout()
-
-        new_layout = {
-            'rows': [0.0,1.0],
-            'cols': [0.0,1.0],
-            'cells': [[0, 0, 1, 1]]
-        }
-
-        PaneManager.view_positions = []
-        PaneManager.active_views = []
-
-        groups = []
-        
-        for view in w.views():
-            group, index = w.get_view_index(view)
-            PaneManager.view_positions.append([view, group, index])
-            groups.append(group)
-
-        for group in set(groups):
-            view = w.active_view_in_group(group)
-            PaneManager.active_views.append(view)
-
-        w.set_layout(new_layout)
+        current_col = l["cells"][g][2]
+        current_row = l["cells"][g][3]
+        new_rows = []
+        new_cols = []
+        for index, row in enumerate(l["rows"]):
+            new_rows.append(0.0 if index < current_row else 1.0)
+        for index, col in enumerate(l["cols"]):
+            new_cols.append(0.0 if index < current_col else 1.0)
+        l["rows"] = new_rows
+        l["cols"] = new_cols
+        w.set_layout(l)
 
 # ------
 
 class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-
-        last_layout = PaneManager.last_layout
+        w.set_layout(PaneManager.last_layout)
         PaneManager.last_layout = False
-        active_view = w.active_view()
-        
-        if last_layout:
-
-            w.set_layout(last_layout)
-
-            for positions in PaneManager.view_positions:
-                w.set_view_index(*positions)
-
-            for view in PaneManager.active_views:
-                w.focus_view(view)
-
-            PaneManager.view_positions = []
-
-            w.focus_view(active_view)
