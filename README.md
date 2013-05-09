@@ -20,6 +20,8 @@ Press <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd> another time and its back
 
 ![dual pane](https://raw.github.com/jisaacks/MaxPane/ba0b8850c2637709428db88b072d6ca79f54543c/dual-thumb.png)
 
+***It also works great with [Origami](https://github.com/SublimeText/Origami)!***
+
 ### Installation
 
 This is a new project, so the only installation method is via `git clone`. I will be adding to [Package Control](http://wbond.net/sublime_packages/package_control) when I believe it is ready for prime time.
