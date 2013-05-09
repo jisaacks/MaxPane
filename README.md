@@ -8,17 +8,17 @@ Ever use a multi pane setup in Sublime Text and want to maximize a single pane f
 
 So lets say you have this multi pane setup:
 
-![dual pane](https://raw.github.com/jisaacks/MaxPane/ba0b8850c2637709428db88b072d6ca79f54543c/dual-thumb.png)
+![dual pane](https://raw.github.com/jisaacks/MaxPane/3535650829f9bbb7df2d26428589b9bd47b13591/before.png)
 
-and you want to maximize the right pane for a sec.
+and you want to maximize the active (right) pane for a sec.
 
 Just press <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd> and the active pane is now maximized:
 
-![single pane](https://raw.github.com/jisaacks/MaxPane/ba0b8850c2637709428db88b072d6ca79f54543c/single-thumb.png)
+![single pane](https://raw.github.com/jisaacks/MaxPane/3535650829f9bbb7df2d26428589b9bd47b13591/after.png)
 
 Press <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd> another time and its back:
 
-![dual pane](https://raw.github.com/jisaacks/MaxPane/ba0b8850c2637709428db88b072d6ca79f54543c/dual-thumb.png)
+![dual pane](https://raw.github.com/jisaacks/MaxPane/3535650829f9bbb7df2d26428589b9bd47b13591/before.png)
 
 ***It also works great with [Origami](https://github.com/SublimeText/Origami)!***
 
