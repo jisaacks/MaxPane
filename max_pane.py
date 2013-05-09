@@ -46,6 +46,42 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
 
 # ------
 
+class ShiftPaneCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        w = self.window
+        if PaneManager.last_layout:
+            maximize = True
+            w.run_command("unmaximize_pane")
+        g = w.active_group()
+        n = w.num_groups()-1
+        if g == n:
+            m = 0
+        else:
+            m = g + 1
+        w.focus_group(m)
+        if maximize:
+            w.run_command("maximize_pane")
+
+# ------
+
+class UnshiftPaneCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        w = self.window
+        if PaneManager.last_layout:
+            maximize = True
+            w.run_command("unmaximize_pane")
+        g = w.active_group()
+        n = w.num_groups()-1
+        if g == 0:
+            m = n
+        else:
+            m = g - 1
+        w.focus_group(m)
+        if maximize:
+            w.run_command("maximize_pane")
+
+# ------
+
 class MaxPaneEvents(sublime_plugin.EventListener):
     def on_window_command(self, window, command_name, args):
         unmaximize_before = ["travel_to_pane","carry_file_to_pane",
