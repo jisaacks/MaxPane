@@ -29,4 +29,6 @@ When maximized, you can navigate to your other panes with:
 
 ### Installation
 
-This is a new project, so the only installation method is via `git clone`. I will be adding to [Package Control](http://wbond.net/sublime_packages/package_control) when I believe it is ready for prime time.
+*Package Control installation is pending, I will update this repo when it can be installed via package control.*
+
+For now, the only installation method is via `git clone`. Check out my other package *read me* for instructions on [how to install a sublime package via git](https://github.com/jisaacks/GitGutter#installation)
