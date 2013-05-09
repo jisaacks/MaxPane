@@ -12,7 +12,7 @@ class MaxPaneCommand(sublime_plugin.WindowCommand):
         w = self.window
         if PaneManager.last_layout:
             w.run_command("unmaximize_pane")
-        else:
+        elif w.num_groups() > 1:
             w.run_command("maximize_pane")
 
 # ------
@@ -40,5 +40,25 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
 class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-        w.set_layout(PaneManager.last_layout)
+        if PaneManager.last_layout:
+            w.set_layout(PaneManager.last_layout)
         PaneManager.last_layout = False
+
+# ------
+
+class MaxPaneEvents(sublime_plugin.EventListener):
+    def on_window_command(self, window, command_name, args):
+        unmaximize_before = ["travel_to_pane","carry_file_to_pane",
+            "clone_file_to_pane","create_pane","destroy_pane",
+            "create_pane_with_file"]
+
+        if command_name in unmaximize_before:
+            window.run_command("unmaximize_pane")
+
+        if command_name == "exit":
+            # Un maximize all windows before exiting
+            windows = sublime.windows()
+            for w in windows:
+                w.run_command("unmaximize_pane")
+
+        return None
