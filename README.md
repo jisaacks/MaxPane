@@ -25,6 +25,7 @@ Press <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd> another time and its back
 ### Bonus
 When maximized, you can navigate to your other panes with: 
 <kbd>cmd</kbd>+<kbd>ctrl</kbd>+<kbd>→</kbd> or <kbd>cmd</kbd>+<kbd>ctrl</kbd>+<kbd>←</kbd>
+* _Windows / Linux users will need to setup their own key bindings_
 
 ### Installation
 
