@@ -3,14 +3,52 @@ import sublime, sublime_plugin
 # ------
 
 class PaneManager:
-    last_layout = False
+    layouts = {}
+
+    @staticmethod
+    def isWindowMaximized(window):
+        w = window
+        if PaneManager.hasLayout(w):
+            return True
+        elif PaneManager.looksMaximized(w):
+            return True
+        return False
+
+    @staticmethod
+    def looksMaximized(window):
+        w = window
+        l = window.get_layout()
+        c = l["cols"]
+        r = l["rows"]
+        if w.num_groups() > 1:
+            if set(c + r) == {0.0, 1.0}:
+                return True
+        return False
+
+    @staticmethod
+    def storeLayout(window):
+        w = window
+        wid = w.window_id
+        PaneManager.layouts[wid] = w.get_layout()
+
+    @staticmethod
+    def popLayout(window):
+        wid = window.window_id
+        l = PaneManager.layouts[wid]
+        del PaneManager.layouts[wid]
+        return l
+
+    @staticmethod
+    def hasLayout(window):
+        wid = window.window_id
+        return wid in PaneManager.layouts
 
 # ------
 
 class MaxPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-        if PaneManager.last_layout:
+        if PaneManager.isWindowMaximized(w):
             w.run_command("unmaximize_pane")
         elif w.num_groups() > 1:
             w.run_command("maximize_pane")
@@ -22,7 +60,7 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
         w = self.window
         g = w.active_group()
         l = w.get_layout()
-        PaneManager.last_layout = w.get_layout()
+        PaneManager.storeLayout(w)
         current_col = l["cells"][g][2]
         current_row = l["cells"][g][3]
         new_rows = []
@@ -40,16 +78,15 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
 class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-        if PaneManager.last_layout:
-            w.set_layout(PaneManager.last_layout)
-        PaneManager.last_layout = False
+        if PaneManager.hasLayout(w):
+            w.set_layout(PaneManager.popLayout(w))
 
 # ------
 
 class ShiftPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-        if PaneManager.last_layout:
+        if PaneManager.hasLayout(w):
             maximize = True
             w.run_command("unmaximize_pane")
         g = w.active_group()
@@ -67,7 +104,7 @@ class ShiftPaneCommand(sublime_plugin.WindowCommand):
 class UnshiftPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-        if PaneManager.last_layout:
+        if PaneManager.hasLayout(w):
             maximize = True
             w.run_command("unmaximize_pane")
         g = w.active_group()
