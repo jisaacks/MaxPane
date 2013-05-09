@@ -10,7 +10,7 @@ So lets say you have this multi pane setup:
 
 ![dual pane](https://raw.github.com/jisaacks/MaxPane/3535650829f9bbb7df2d26428589b9bd47b13591/before.png)
 
-and you want to maximize the active (right) pane for a sec.
+and you want to maximize the active (top left) pane for a sec.
 
 Just press <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd> and the active pane is now maximized:
 
@@ -21,6 +21,10 @@ Press <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd> another time and its back
 ![dual pane](https://raw.github.com/jisaacks/MaxPane/3535650829f9bbb7df2d26428589b9bd47b13591/before.png)
 
 ***It also works great with [Origami](https://github.com/SublimeText/Origami)!***
+
+### Bonus
+When maximized, you can navigate to your other panes with: 
+<kbd>cmd</kbd>+<kbd>ctrl</kbd>+<kbd>→</kbd> or <kbd>cmd</kbd>+<kbd>ctrl</kbd>+<kbd>←</kbd>
 
 ### Installation
 
