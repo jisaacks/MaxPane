@@ -80,6 +80,23 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
         w = self.window
         if PaneManager.hasLayout(w):
             w.set_layout(PaneManager.popLayout(w))
+        elif PaneManager.looksMaximized(w):
+            # We don't have a previous layout for this window
+            # but it looks like it was maximized, so lets
+            # just evenly distribute the layout.
+            self.evenOutLayout()
+
+    def evenOutLayout(self):
+        w = self.window
+        l = w.get_layout()
+        l["rows"] = self.distribute(l["rows"])
+        l["cols"] = self.distribute(l["cols"])
+        w.set_layout(l)
+
+    def distribute(self, values):
+        l = len(values)
+        r = range(0,l)
+        return [n/float(l-1) for n in r]
 
 # ------
 
