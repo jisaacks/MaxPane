@@ -103,6 +103,7 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
 class ShiftPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
+        maximize = False
         if PaneManager.isWindowMaximized(w):
             maximize = True
             w.run_command("unmaximize_pane")
