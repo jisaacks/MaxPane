@@ -103,7 +103,7 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
 class ShiftPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-        if PaneManager.hasLayout(w):
+        if PaneManager.isWindowMaximized(w):
             maximize = True
             w.run_command("unmaximize_pane")
         g = w.active_group()
@@ -121,7 +121,7 @@ class ShiftPaneCommand(sublime_plugin.WindowCommand):
 class UnshiftPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-        if PaneManager.hasLayout(w):
+        if PaneManager.isWindowMaximized(w):
             maximize = True
             w.run_command("unmaximize_pane")
         g = w.active_group()
