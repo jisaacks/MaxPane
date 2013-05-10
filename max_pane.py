@@ -106,33 +106,32 @@ class ShiftPaneCommand(sublime_plugin.WindowCommand):
         if PaneManager.isWindowMaximized(w):
             maximize = True
             w.run_command("unmaximize_pane")
+        w.focus_group(self.groupToMoveTo())
+        if maximize:
+            w.run_command("maximize_pane")
+
+    def groupToMoveTo(self):
+        w = self.window
         g = w.active_group()
         n = w.num_groups()-1
         if g == n:
             m = 0
         else:
             m = g + 1
-        w.focus_group(m)
-        if maximize:
-            w.run_command("maximize_pane")
+        return m
 
 # ------
 
-class UnshiftPaneCommand(sublime_plugin.WindowCommand):
-    def run(self):
+class UnshiftPaneCommand(ShiftPaneCommand):
+    def groupToMoveTo(self):
         w = self.window
-        if PaneManager.isWindowMaximized(w):
-            maximize = True
-            w.run_command("unmaximize_pane")
         g = w.active_group()
         n = w.num_groups()-1
         if g == 0:
             m = n
         else:
             m = g - 1
-        w.focus_group(m)
-        if maximize:
-            w.run_command("maximize_pane")
+        return m
 
 # ------
 
