@@ -152,3 +152,17 @@ class MaxPaneEvents(sublime_plugin.EventListener):
                 w.run_command("unmaximize_pane")
 
         return None
+
+    def on_activated(self, view):
+        w = view.window()
+        if PaneManager.isWindowMaximized(w):
+            # v = w.active_view()
+            # activeGroup = w.active_group()
+            # viewGroup = window.get_view_index(v)[0]
+            # if activeGroup != viewGroup:
+            w.run_command("unmaximize_pane")
+            w.run_command("maximize_pane")
+
+
+
+
