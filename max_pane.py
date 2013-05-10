@@ -21,26 +21,26 @@ class PaneManager:
         c = l["cols"]
         r = l["rows"]
         if w.num_groups() > 1:
-            if set(c + r) == {0.0, 1.0}:
+            if set(c + r) == set([0.0, 1.0]):
                 return True
         return False
 
     @staticmethod
     def storeLayout(window):
         w = window
-        wid = w.window_id
+        wid = window.id()
         PaneManager.layouts[wid] = w.get_layout()
 
     @staticmethod
     def popLayout(window):
-        wid = window.window_id
+        wid = window.id()
         l = PaneManager.layouts[wid]
         del PaneManager.layouts[wid]
         return l
 
     @staticmethod
     def hasLayout(window):
-        wid = window.window_id
+        wid = window.id()
         return wid in PaneManager.layouts
 
 # ------
