@@ -162,6 +162,7 @@ class MaxPaneEvents(sublime_plugin.EventListener):
         if PaneManager.isWindowMaximized(w):
             # Is the active group the group that is maximized?
             if w.active_group() != PaneManager.maxedGroup(w):
+                w.run_command("unmaximize_pane")
                 w.run_command("maximize_pane")
 
 
