@@ -4,6 +4,7 @@ import sublime, sublime_plugin
 
 class PaneManager:
     layouts = {}
+    maxgroup = {}
 
     @staticmethod
     def isWindowMaximized(window):
@@ -30,12 +31,20 @@ class PaneManager:
         w = window
         wid = window.id()
         PaneManager.layouts[wid] = w.get_layout()
+        PaneManager.maxgroup[wid] = w.active_group()
+
+    @staticmethod
+    def maxedGroup(window):
+        w = window
+        wid = window.id()
+        return PaneManager.maxgroup[wid]
 
     @staticmethod
     def popLayout(window):
         wid = window.id()
         l = PaneManager.layouts[wid]
         del PaneManager.layouts[wid]
+        del PaneManager.maxgroup[wid]
         return l
 
     @staticmethod
@@ -61,8 +70,8 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
         g = w.active_group()
         l = w.get_layout()
         PaneManager.storeLayout(w)
-        current_col = l["cells"][g][2]
-        current_row = l["cells"][g][3]
+        current_col = int(l["cells"][g][2])
+        current_row = int(l["cells"][g][3])
         new_rows = []
         new_cols = []
         for index, row in enumerate(l["rows"]):
@@ -103,13 +112,7 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
 class ShiftPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-        maximize = False
-        if PaneManager.isWindowMaximized(w):
-            maximize = True
-            w.run_command("unmaximize_pane")
         w.focus_group(self.groupToMoveTo())
-        if maximize:
-            w.run_command("maximize_pane")
 
     def groupToMoveTo(self):
         w = self.window
@@ -154,14 +157,12 @@ class MaxPaneEvents(sublime_plugin.EventListener):
         return None
 
     def on_activated(self, view):
-        w = view.window()
+        w = view.window() or sublime.active_window()
+        # Is the window currently maximized?
         if PaneManager.isWindowMaximized(w):
-            # v = w.active_view()
-            # activeGroup = w.active_group()
-            # viewGroup = window.get_view_index(v)[0]
-            # if activeGroup != viewGroup:
-            w.run_command("unmaximize_pane")
-            w.run_command("maximize_pane")
+            # Is the active group the group that is maximized?
+            if w.active_group() != PaneManager.maxedGroup(w):
+                w.run_command("maximize_pane")
 
 
 
