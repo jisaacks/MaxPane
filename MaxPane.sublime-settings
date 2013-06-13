@@ -1,0 +1,5 @@
+{
+  // automatically distrubute layout after these commands
+  // example ["create_pane","destroy_pane"]
+  "distrubute_layout_after": ["create_pane","destroy_pane"]
+}

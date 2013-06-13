@@ -175,6 +175,11 @@ class MaxPaneEvents(sublime_plugin.EventListener):
                 w.run_command("unmaximize_pane")
                 w.run_command("maximize_pane")
 
+    def on_post_window_command(self, window, command_name, args):
+        settings = sublime.load_settings('MaxPane.sublime-settings')
+        dla = settings.get('distrubute_layout_after')
+        if command_name in dla:
+            window.run_command("distribute_layout")
 
 
 
