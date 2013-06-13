@@ -37,7 +37,10 @@ class PaneManager:
     def maxedGroup(window):
         w = window
         wid = window.id()
-        return PaneManager.maxgroup[wid]
+        if wid in PaneManager.maxgroup:
+            return PaneManager.maxgroup[wid]
+        else:
+            return None
 
     @staticmethod
     def popLayout(window):
