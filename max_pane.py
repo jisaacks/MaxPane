@@ -97,6 +97,13 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
 
     def evenOutLayout(self):
         w = self.window
+        w.run_command("distribute_layout")
+
+# ------
+
+class DistributeLayoutCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        w = self.window
         l = w.get_layout()
         l["rows"] = self.distribute(l["rows"])
         l["cols"] = self.distribute(l["cols"])
