@@ -20,7 +20,7 @@ Press <kbd>cmd</kbd>+<kbd>shift</kbd>+<kbd>enter</kbd> another time and its back
 
 ![dual pane](https://raw.github.com/jisaacks/MaxPane/3535650829f9bbb7df2d26428589b9bd47b13591/before.png)
 
-***It also works great with [Origami](https://github.com/SublimeText/Origami)!***
+***It also works great with [Origami](https://github.com/SublimeText/Origami) and [Distraction Free Window](https://github.com/aziz/DistractionFreeWindow#changing-layout)!***
 
 ### Bonus
 When maximized, you can navigate to your other panes with: 
