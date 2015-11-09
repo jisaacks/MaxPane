@@ -83,7 +83,7 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
             new_cols.append(0.0 if index < current_col else 1.0)
         l["rows"] = new_rows
         l["cols"] = new_cols
-        for view in self.window.views():
+        for view in w.views():
             view.set_status('0_maxpane', 'MAX')
         w.set_layout(l)
 
@@ -99,7 +99,7 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
             # but it looks like it was maximized, so lets
             # just evenly distribute the layout.
             self.evenOutLayout()
-        for view in self.window.views():
+        for view in w.views():
             view.erase_status('0_maxpane')
 
     def evenOutLayout(self):
