@@ -1,7 +1,37 @@
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
+
+
+SHARE_OBJECT = 'max_pane_share.sublime-settings'
 
 # ------
 
+class ShareManager:
+    """Exposes a list of window ids which currently contain maximized panes.
+       Shared via an in-memory .sublime-settings file."""
+    maxed_wnds = set([])
+    previous = set([])
+
+    @classmethod
+    def check_and_submit(cls):
+        if cls.maxed_wnds != cls.previous:
+            cls.previous = cls.maxed_wnds
+            s = sublime.load_settings(SHARE_OBJECT)
+            s.set("maxed_wnds", list(cls.maxed_wnds))
+
+    @classmethod
+    def add(cls, id):
+        cls.maxed_wnds.add(id)
+        cls.check_and_submit()
+
+    @classmethod
+    def remove(cls, id):
+        cls.maxed_wnds.discard(id)
+        cls.check_and_submit()
+
+# ------
+ 
+    
 class PaneManager:
     layouts = {}
     maxgroup = {}
@@ -35,7 +65,6 @@ class PaneManager:
 
     @staticmethod
     def maxedGroup(window):
-        w = window
         wid = window.id()
         if wid in PaneManager.maxgroup:
             return PaneManager.maxgroup[wid]
@@ -57,15 +86,20 @@ class PaneManager:
 
 # ------
 
+
 class MaxPaneCommand(sublime_plugin.WindowCommand):
+    """Toggles pane maximization."""
     def run(self):
         w = self.window
         if PaneManager.isWindowMaximized(w):
             w.run_command("unmaximize_pane")
+            ShareManager.remove(w.id())
         elif w.num_groups() > 1:
+            ShareManager.add(w.id())
             w.run_command("maximize_pane")
 
 # ------
+
 
 class MaximizePaneCommand(sublime_plugin.WindowCommand):
     def run(self):
@@ -89,6 +123,7 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
 
 # ------
 
+
 class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
@@ -108,6 +143,7 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
 
 # ------
 
+
 class DistributeLayoutCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
@@ -118,10 +154,11 @@ class DistributeLayoutCommand(sublime_plugin.WindowCommand):
 
     def distribute(self, values):
         l = len(values)
-        r = range(0,l)
-        return [n/float(l-1) for n in r]
+        r = range(0, l)
+        return [n / float(l - 1) for n in r]
 
 # ------
+
 
 class ShiftPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
@@ -131,7 +168,7 @@ class ShiftPaneCommand(sublime_plugin.WindowCommand):
     def groupToMoveTo(self):
         w = self.window
         g = w.active_group()
-        n = w.num_groups()-1
+        n = w.num_groups() - 1
         if g == n:
             m = 0
         else:
@@ -140,11 +177,12 @@ class ShiftPaneCommand(sublime_plugin.WindowCommand):
 
 # ------
 
+
 class UnshiftPaneCommand(ShiftPaneCommand):
     def groupToMoveTo(self):
         w = self.window
         g = w.active_group()
-        n = w.num_groups()-1
+        n = w.num_groups() - 1
         if g == 0:
             m = n
         else:
@@ -153,12 +191,12 @@ class UnshiftPaneCommand(ShiftPaneCommand):
 
 # ------
 
+
 class MaxPaneEvents(sublime_plugin.EventListener):
     def on_window_command(self, window, command_name, args):
-        unmaximize_before = ["travel_to_pane","carry_file_to_pane",
-            "clone_file_to_pane","create_pane","destroy_pane",
-            "create_pane_with_file"]
-
+        unmaximize_before = ["travel_to_pane", "carry_file_to_pane",
+                             "clone_file_to_pane", "create_pane",
+                             "destroy_pane", "create_pane_with_file"]
         if command_name in unmaximize_before:
             window.run_command("unmaximize_pane")
 
@@ -178,7 +216,3 @@ class MaxPaneEvents(sublime_plugin.EventListener):
             if w.active_group() != PaneManager.maxedGroup(w):
                 w.run_command("unmaximize_pane")
                 w.run_command("maximize_pane")
-
-
-
-
