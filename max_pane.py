@@ -88,6 +88,7 @@ class PaneManager:
 
 
 class MaxPaneCommand(sublime_plugin.WindowCommand):
+    """Toggles pane maximization."""
     def run(self):
         w = self.window
         if PaneManager.isWindowMaximized(w):
