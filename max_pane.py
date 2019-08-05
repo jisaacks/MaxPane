@@ -192,6 +192,14 @@ class UnshiftPaneCommand(ShiftPaneCommand):
 # ------
 
 
+def sublime_text_synced(fun):
+    def decorator(*args, **kwargs):
+        sublime.set_timeout(lambda: fun(*args, **kwargs), 10)
+    return decorator
+
+# ------
+
+
 class MaxPaneEvents(sublime_plugin.EventListener):
     def on_window_command(self, window, command_name, args):
         unmaximize_before = ["travel_to_pane", "carry_file_to_pane",
@@ -200,10 +208,11 @@ class MaxPaneEvents(sublime_plugin.EventListener):
                              "set_layout", "project_manager", "new_pane"]
 
         if sublime.load_settings(SHARE_OBJECT).get('block_max_pane'):
-            return None
+            return
 
         if command_name in unmaximize_before:
             window.run_command("unmaximize_pane")
+            return
 
         if command_name == "exit":
             # Un maximize all windows before exiting
@@ -211,12 +220,10 @@ class MaxPaneEvents(sublime_plugin.EventListener):
             for w in windows:
                 w.run_command("unmaximize_pane")
 
-        return None
-
+    @sublime_text_synced
     def on_activated(self, view):
-
         if sublime.load_settings(SHARE_OBJECT).get('block_max_pane'):
-            return None
+            return
 
         w = view.window() or sublime.active_window()
         # Is the window currently maximized?
