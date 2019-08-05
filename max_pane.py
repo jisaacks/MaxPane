@@ -201,16 +201,23 @@ def sublime_text_synced(fun):
 
 
 class MaxPaneEvents(sublime_plugin.EventListener):
-    def on_window_command(self, window, command_name, args):
-        unmaximize_before = ["travel_to_pane", "carry_file_to_pane",
-                             "clone_file_to_pane", "create_pane",
-                             "destroy_pane", "create_pane_with_file",
-                             "set_layout", "project_manager", "new_pane"]
+    UNMAXIMIZE_BEFORE = frozenset((
+        "carry_file_to_pane",
+        "clone_file_to_pane",
+        "create_pane",
+        "create_pane_with_file",
+        "destroy_pane",
+        "new_pane",
+        "project_manager",
+        "set_layout",
+        "travel_to_pane"
+    ))
 
+    def on_window_command(self, window, command_name, args):
         if sublime.load_settings(SHARE_OBJECT).get('block_max_pane'):
             return
 
-        if command_name in unmaximize_before:
+        if command_name in self.UNMAXIMIZE_BEFORE:
             window.run_command("unmaximize_pane")
             return
 
