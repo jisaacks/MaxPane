@@ -202,31 +202,15 @@ class DistributeLayoutCommand(sublime_plugin.WindowCommand):
 class ShiftPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-        w.focus_group(self.groupToMoveTo())
-
-    def groupToMoveTo(self):
-        w = self.window
-        g = w.active_group()
-        n = w.num_groups() - 1
-        if g == n:
-            m = 0
-        else:
-            m = g + 1
-        return m
+        w.focus_group((w.active_group() + 1) % w.num_groups())
 
 # ------
 
 
-class UnshiftPaneCommand(ShiftPaneCommand):
-    def groupToMoveTo(self):
+class UnshiftPaneCommand(sublime_plugin.WindowCommand):
+    def run(self):
         w = self.window
-        g = w.active_group()
-        n = w.num_groups() - 1
-        if g == 0:
-            m = n
-        else:
-            m = g - 1
-        return m
+        w.focus_group((w.active_group() - 1) % w.num_groups())
 
 # ------
 
