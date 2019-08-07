@@ -217,6 +217,8 @@ class MaxPaneEvents(sublime_plugin.EventListener):
         "create_pane",
         "create_pane_with_file",
         "destroy_pane",
+        "move_to_group",
+        "move_to_neighbouring_group",
         "new_pane",
         "project_manager",
         "set_layout",
