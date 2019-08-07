@@ -42,6 +42,15 @@ import sublime_plugin
 # ------
 
 
+def set_layout_and_focus(window, layout):
+    # https://github.com/SublimeTextIssues/Core/issues/2919
+    active_group = window.active_group()
+    window.set_layout(layout)
+    window.focus_group(active_group)
+
+# ------
+
+
 class ShareManager:
     """Exposes a list of window ids which currently contain maximized panes.
        Shared via an in-memory .sublime-settings file."""
@@ -160,7 +169,7 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
         l["cols"] = new_cols
         for view in w.views():
             view.set_status('0_maxpane', 'MAX')
-        w.set_layout(l)
+        set_layout_and_focus(w, l)
 
 # ------
 
@@ -169,7 +178,7 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
         if PaneManager.hasLayout(w):
-            w.set_layout(PaneManager.popLayout(w))
+            set_layout_and_focus(w, PaneManager.popLayout(w))
         elif PaneManager.looksMaximized(w):
             # We don't have a previous layout for this window
             # but it looks like it was maximized, so lets
@@ -187,7 +196,7 @@ class DistributeLayoutCommand(sublime_plugin.WindowCommand):
         l = w.get_layout()
         l["rows"] = self.distribute(l["rows"])
         l["cols"] = self.distribute(l["cols"])
-        w.set_layout(l)
+        set_layout_and_focus(w, l)
 
     def distribute(self, values):
         l = len(values)
