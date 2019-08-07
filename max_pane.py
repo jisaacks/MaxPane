@@ -39,9 +39,6 @@
 import sublime
 import sublime_plugin
 
-
-SHARE_OBJECT = 'max_pane_share.sublime-settings'
-
 # ------
 
 
@@ -52,11 +49,16 @@ class ShareManager:
     previous = set([])
 
     @classmethod
+    def is_blocked(cls):
+        return sublime.load_settings(
+            'max_pane_share.sublime-settings').get('block_max_pane')
+
+    @classmethod
     def check_and_submit(cls):
         if cls.maxed_wnds != cls.previous:
             cls.previous = cls.maxed_wnds
-            s = sublime.load_settings(SHARE_OBJECT)
-            s.set("maxed_wnds", list(cls.maxed_wnds))
+            sublime.load_settings('max_pane_share.sublime-settings').set(
+                "maxed_wnds", list(cls.maxed_wnds))
 
     @classmethod
     def add(cls, id):
@@ -233,7 +235,7 @@ class MaxPaneEvents(sublime_plugin.EventListener):
     ))
 
     def on_window_command(self, window, command_name, args):
-        if sublime.load_settings(SHARE_OBJECT).get('block_max_pane'):
+        if ShareManager.is_blocked():
             return
 
         if command_name in self.UNMAXIMIZE_BEFORE:
@@ -248,7 +250,7 @@ class MaxPaneEvents(sublime_plugin.EventListener):
 
     @sublime_text_synced
     def on_activated(self, view):
-        if sublime.load_settings(SHARE_OBJECT).get('block_max_pane'):
+        if ShareManager.is_blocked():
             return
 
         w = view.window() or sublime.active_window()
