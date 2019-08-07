@@ -42,6 +42,15 @@ import sublime_plugin
 # ------
 
 
+def sublime_text_synced(fun):
+    # https://github.com/SublimeTextIssues/Core/issues/1785
+    def decorator(*args, **kwargs):
+        sublime.set_timeout(lambda: fun(*args, **kwargs), 10)
+    return decorator
+
+# ------
+
+
 def set_layout_and_focus(window, layout):
     # https://github.com/SublimeTextIssues/Core/issues/2919
     active_group = window.active_group()
@@ -218,14 +227,6 @@ class UnshiftPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
         w.focus_group((w.active_group() - 1) % w.num_groups())
-
-# ------
-
-
-def sublime_text_synced(fun):
-    def decorator(*args, **kwargs):
-        sublime.set_timeout(lambda: fun(*args, **kwargs), 10)
-    return decorator
 
 # ------
 
