@@ -39,8 +39,6 @@
 import sublime
 import sublime_plugin
 
-# ------
-
 
 def sublime_text_synced(fun):
     # https://github.com/SublimeTextIssues/Core/issues/1785
@@ -48,16 +46,12 @@ def sublime_text_synced(fun):
         sublime.set_timeout(lambda: fun(*args, **kwargs), 10)
     return decorator
 
-# ------
-
 
 def set_layout_and_focus(window, layout):
     # https://github.com/SublimeTextIssues/Core/issues/2919
     active_group = window.active_group()
     window.set_layout(layout)
     window.focus_group(active_group)
-
-# ------
 
 
 class ShareManager:
@@ -87,8 +81,6 @@ class ShareManager:
     def remove(cls, id):
         cls.maxed_wnds.discard(id)
         cls.check_and_submit()
-
-# ------
 
 
 class PaneManager:
@@ -143,8 +135,6 @@ class PaneManager:
         wid = window.id()
         return wid in PaneManager.layouts
 
-# ------
-
 
 class MaxPaneCommand(sublime_plugin.WindowCommand):
     """Toggles pane maximization."""
@@ -156,8 +146,6 @@ class MaxPaneCommand(sublime_plugin.WindowCommand):
         elif w.num_groups() > 1:
             ShareManager.add(w.id())
             w.run_command("maximize_pane")
-
-# ------
 
 
 class MaximizePaneCommand(sublime_plugin.WindowCommand):
@@ -180,8 +168,6 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
             view.set_status('0_maxpane', 'MAX')
         set_layout_and_focus(w, l)
 
-# ------
-
 
 class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
     def run(self):
@@ -195,8 +181,6 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
             w.run_command("distribute_layout")
         for view in w.views():
             view.erase_status('0_maxpane')
-
-# ------
 
 
 class DistributeLayoutCommand(sublime_plugin.WindowCommand):
@@ -212,23 +196,17 @@ class DistributeLayoutCommand(sublime_plugin.WindowCommand):
         r = range(0, l)
         return [n / float(l - 1) for n in r]
 
-# ------
-
 
 class ShiftPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
         w.focus_group((w.active_group() + 1) % w.num_groups())
 
-# ------
-
 
 class UnshiftPaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
         w.focus_group((w.active_group() - 1) % w.num_groups())
-
-# ------
 
 
 class MaxPaneEvents(sublime_plugin.EventListener):
