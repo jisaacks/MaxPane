@@ -87,60 +87,40 @@ class PaneManager:
     layouts = {}
     maxgroup = {}
 
-    @staticmethod
-    def isWindowMaximized(window):
-        w = window
-        if PaneManager.hasLayout(w):
-            return True
-        elif PaneManager.looksMaximized(w):
-            return True
-        return False
+    @classmethod
+    def is_group_maximized(cls, window):
+        return window.id() in cls.layouts or cls.looks_maximized(window)
 
     @staticmethod
-    def looksMaximized(window):
-        w = window
-        l = window.get_layout()
-        c = l["cols"]
-        r = l["rows"]
-        if w.num_groups() > 1:
-            if set(c + r) == set([0.0, 1.0]):
-                return True
-        return False
+    def looks_maximized(window):
+        if window.num_groups() <= 1:
+            return False
 
-    @staticmethod
-    def storeLayout(window):
-        w = window
+        layout = window.get_layout()
+        return set(layout["cols"] + layout["rows"]) == set([0.0, 1.0])
+
+    @classmethod
+    def maximized_group(cls, window):
+        return cls.maxgroup.get(window.id())
+
+    @classmethod
+    def store_layout(cls, window):
         wid = window.id()
-        PaneManager.layouts[wid] = w.get_layout()
-        PaneManager.maxgroup[wid] = w.active_group()
+        cls.layouts[wid] = window.get_layout()
+        cls.maxgroup[wid] = window.active_group()
 
-    @staticmethod
-    def maxedGroup(window):
+    @classmethod
+    def pop_layout(cls, window):
         wid = window.id()
-        if wid in PaneManager.maxgroup:
-            return PaneManager.maxgroup[wid]
-        else:
-            return None
-
-    @staticmethod
-    def popLayout(window):
-        wid = window.id()
-        l = PaneManager.layouts[wid]
-        del PaneManager.layouts[wid]
-        del PaneManager.maxgroup[wid]
-        return l
-
-    @staticmethod
-    def hasLayout(window):
-        wid = window.id()
-        return wid in PaneManager.layouts
+        cls.maxgroup.pop(wid, None)
+        return cls.layouts.pop(wid, None)
 
 
 class MaxPaneCommand(sublime_plugin.WindowCommand):
     """Toggles pane maximization."""
     def run(self):
         w = self.window
-        if PaneManager.isWindowMaximized(w):
+        if PaneManager.is_group_maximized(w):
             w.run_command("unmaximize_pane")
             ShareManager.remove(w.id())
         elif w.num_groups() > 1:
@@ -153,7 +133,7 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
         w = self.window
         g = w.active_group()
         l = w.get_layout()
-        PaneManager.storeLayout(w)
+        PaneManager.store_layout(w)
         current_col = int(l["cells"][g][2])
         current_row = int(l["cells"][g][3])
         new_rows = []
@@ -172,9 +152,10 @@ class MaximizePaneCommand(sublime_plugin.WindowCommand):
 class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
     def run(self):
         w = self.window
-        if PaneManager.hasLayout(w):
-            set_layout_and_focus(w, PaneManager.popLayout(w))
-        elif PaneManager.looksMaximized(w):
+        l = PaneManager.pop_layout(w)
+        if l:
+            set_layout_and_focus(w, l)
+        elif PaneManager.looks_maximized(w):
             # We don't have a previous layout for this window
             # but it looks like it was maximized, so lets
             # just evenly distribute the layout.
@@ -243,8 +224,8 @@ class MaxPaneEvents(sublime_plugin.EventListener):
 
         w = view.window() or sublime.active_window()
         # Is the window currently maximized?
-        if w and PaneManager.isWindowMaximized(w):
+        if w and PaneManager.is_group_maximized(w):
             # Is the active group the group that is maximized?
-            if w.active_group() != PaneManager.maxedGroup(w):
+            if w.active_group() != PaneManager.maximized_group(w):
                 w.run_command("unmaximize_pane")
                 w.run_command("maximize_pane")
