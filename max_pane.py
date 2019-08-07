@@ -172,13 +172,9 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
             # We don't have a previous layout for this window
             # but it looks like it was maximized, so lets
             # just evenly distribute the layout.
-            self.evenOutLayout()
+            w.run_command("distribute_layout")
         for view in w.views():
             view.erase_status('0_maxpane')
-
-    def evenOutLayout(self):
-        w = self.window
-        w.run_command("distribute_layout")
 
 # ------
 
