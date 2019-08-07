@@ -47,11 +47,105 @@ def sublime_text_synced(fun):
     return decorator
 
 
-def set_layout_and_focus(window, layout):
-    # https://github.com/SublimeTextIssues/Core/issues/2919
-    active_group = window.active_group()
-    window.set_layout(layout)
-    window.focus_group(active_group)
+# With ST3 layouts and maximized groups are stored persistent in the session.
+PERSIST_LAYOUTS = hasattr(sublime.Window, "settings")
+if PERSIST_LAYOUTS:
+    def maximized_group(window):
+        return window.settings().get("max_pane", {}).get("group")
+
+    def active_layout(window):
+        return window.layout()
+
+    def has_stored_layout(window):
+        return window.settings().has("max_pane")
+
+    def pop_stored_layout(window):
+        settings = window.settings()
+        layout = settings.get("max_pane", {}).get("layout")
+        settings.erase("max_pane")
+        return layout
+
+    def store_layout(window, layout, group):
+        window.settings().set("max_pane", {"layout": layout, "group": group})
+
+# ST2 doesn't provide a window settings API to store layouts persistent.
+else:
+    _store = {}
+
+    def maximized_group(window):
+        return _store.get(window.id(), {}).get("group")
+
+    def active_layout(window):
+        return window.get_layout()
+
+    def has_stored_layout(window):
+        return window.id() in _store
+
+    def pop_stored_layout(window):
+        try:
+            return _store.pop(window.id()).get("layout")
+        except KeyError:
+            return None
+
+    def store_layout(window, layout, group):
+        _store[window.id()] = {"layout": layout, "group": group}
+
+
+def is_group_maximized(window):
+    return has_stored_layout(window) or looks_maximized(window)
+
+
+def looks_maximized(window):
+    if window.num_groups() < 2:
+        return False
+
+    layout = active_layout(window)
+    return set(layout["cols"] + layout["rows"]) == set([0.0, 1.0])
+
+
+def maximize_active_group(window):
+    group = window.active_group()
+    layout = active_layout(window)
+    store_layout(window, layout, group)
+    cells = layout["cells"]
+    current_col = int(cells[group][2])
+    current_row = int(cells[group][3])
+    window.set_layout({
+        "rows": [
+            0.0 if index < current_row else 1.0
+            for index, row in enumerate(layout["rows"])
+        ],
+        "cols": [
+            0.0 if index < current_col else 1.0
+            for index, col in enumerate(layout["cols"])
+        ],
+        "cells": cells
+    })
+    window.focus_group(group)
+    for view in window.views():
+        view.set_status('0_maxpane', 'MAX')
+
+
+def unmaximize_group(window):
+    layout = pop_stored_layout(window)
+    if layout is None and looks_maximized(window):
+        # We don't have a previous layout for this window
+        # but it looks like it was maximized, so lets
+        # just evenly distribute the layout.
+        layout = active_layout(window)
+        layout["rows"] = distribute(layout["rows"])
+        layout["cols"] = distribute(layout["cols"])
+    if layout:
+        group = window.active_group()
+        window.set_layout(layout)
+        window.focus_group(group)
+    for view in window.views():
+        view.erase_status('0_maxpane')
+
+
+def distribute(values):
+    num_values = len(values)
+    return [n / float(num_values - 1) for n in range(0, num_values)]
 
 
 class ShareManager:
@@ -83,99 +177,25 @@ class ShareManager:
         cls.check_and_submit()
 
 
-class PaneManager:
-    layouts = {}
-    maxgroup = {}
-
-    @classmethod
-    def is_group_maximized(cls, window):
-        return window.id() in cls.layouts or cls.looks_maximized(window)
-
-    @staticmethod
-    def looks_maximized(window):
-        if window.num_groups() <= 1:
-            return False
-
-        layout = window.get_layout()
-        return set(layout["cols"] + layout["rows"]) == set([0.0, 1.0])
-
-    @classmethod
-    def maximized_group(cls, window):
-        return cls.maxgroup.get(window.id())
-
-    @classmethod
-    def store_layout(cls, window):
-        wid = window.id()
-        cls.layouts[wid] = window.get_layout()
-        cls.maxgroup[wid] = window.active_group()
-
-    @classmethod
-    def pop_layout(cls, window):
-        wid = window.id()
-        cls.maxgroup.pop(wid, None)
-        return cls.layouts.pop(wid, None)
-
-
 class MaxPaneCommand(sublime_plugin.WindowCommand):
-    """Toggles pane maximization."""
     def run(self):
         w = self.window
-        if PaneManager.is_group_maximized(w):
-            w.run_command("unmaximize_pane")
+        if is_group_maximized(w):
+            unmaximize_group(w)
             ShareManager.remove(w.id())
         elif w.num_groups() > 1:
             ShareManager.add(w.id())
-            w.run_command("maximize_pane")
+            maximize_active_group(w)
 
 
 class MaximizePaneCommand(sublime_plugin.WindowCommand):
     def run(self):
-        w = self.window
-        g = w.active_group()
-        l = w.get_layout()
-        PaneManager.store_layout(w)
-        current_col = int(l["cells"][g][2])
-        current_row = int(l["cells"][g][3])
-        new_rows = []
-        new_cols = []
-        for index, row in enumerate(l["rows"]):
-            new_rows.append(0.0 if index < current_row else 1.0)
-        for index, col in enumerate(l["cols"]):
-            new_cols.append(0.0 if index < current_col else 1.0)
-        l["rows"] = new_rows
-        l["cols"] = new_cols
-        for view in w.views():
-            view.set_status('0_maxpane', 'MAX')
-        set_layout_and_focus(w, l)
+        maximize_active_group(self.window)
 
 
 class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
     def run(self):
-        w = self.window
-        l = PaneManager.pop_layout(w)
-        if l:
-            set_layout_and_focus(w, l)
-        elif PaneManager.looks_maximized(w):
-            # We don't have a previous layout for this window
-            # but it looks like it was maximized, so lets
-            # just evenly distribute the layout.
-            w.run_command("distribute_layout")
-        for view in w.views():
-            view.erase_status('0_maxpane')
-
-
-class DistributeLayoutCommand(sublime_plugin.WindowCommand):
-    def run(self):
-        w = self.window
-        l = w.get_layout()
-        l["rows"] = self.distribute(l["rows"])
-        l["cols"] = self.distribute(l["cols"])
-        set_layout_and_focus(w, l)
-
-    def distribute(self, values):
-        l = len(values)
-        r = range(0, l)
-        return [n / float(l - 1) for n in r]
+        unmaximize_group(self.window)
 
 
 class ShiftPaneCommand(sublime_plugin.WindowCommand):
@@ -208,24 +228,31 @@ class MaxPaneEvents(sublime_plugin.EventListener):
             return
 
         if command_name in self.UNMAXIMIZE_BEFORE:
-            window.run_command("unmaximize_pane")
+            unmaximize_group(window)
             return
 
-        if command_name == "exit":
-            # Un maximize all windows before exiting
-            windows = sublime.windows()
-            for w in windows:
-                w.run_command("unmaximize_pane")
+        if PERSIST_LAYOUTS is False and command_name == "exit":
+            for window in sublime.windows():
+                unmaximize_group(window)
 
     @sublime_text_synced
     def on_activated(self, view):
         if ShareManager.is_blocked():
             return
 
-        w = view.window() or sublime.active_window()
+        window = view.window() or sublime.active_window()
         # Is the window currently maximized?
-        if w and PaneManager.is_group_maximized(w):
+        if window and is_group_maximized(window):
             # Is the active group the group that is maximized?
-            if w.active_group() != PaneManager.maximized_group(w):
-                w.run_command("unmaximize_pane")
-                w.run_command("maximize_pane")
+            if window.active_group() != maximized_group(window):
+                unmaximize_group(window)
+                maximize_active_group(window)
+
+
+def plugin_loaded():
+    # restore status bar indicator after startup
+    if PERSIST_LAYOUTS:
+        for window in sublime.windows():
+            if is_group_maximized(window):
+                for view in window.views():
+                    view.set_status('0_maxpane', 'MAX')
