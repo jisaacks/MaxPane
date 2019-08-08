@@ -12,11 +12,11 @@ So lets say you have this multi pane setup:
 
 and you want to maximize the active (top left) pane for a sec.
 
-Just press <kbd>cmd + shift + enter</kbd> and the active pane is now maximized:
+Just press <kbd>ctrl + k</kbd>, <kbd>ctrl + f</kbd> _(Linux/Windows)_ / <kbd>super + k</kbd>, <kbd>super + f</kbd> _(MacOS)_ and the active pane is now maximized:
 
 ![single pane](https://raw.github.com/jisaacks/MaxPane/3535650829f9bbb7df2d26428589b9bd47b13591/after.png)
 
-Press <kbd>cmd + shift + enter</kbd> another time and its back:
+Press <kbd>ctrl + k</kbd>, <kbd>ctrl + f</kbd> _(Linux/Windows)_ / <kbd>super + k</kbd>, <kbd>super + f</kbd> _(MacOS)_ another time and its back:
 
 ![dual pane](https://raw.github.com/jisaacks/MaxPane/3535650829f9bbb7df2d26428589b9bd47b13591/before.png)
 
