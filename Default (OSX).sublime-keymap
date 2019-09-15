@@ -1,5 +1,6 @@
 [
     { "keys": ["super+k", "super+f"], "command": "max_pane" },
+    { "keys": ["super+k", "super+m"], "command": "max_editor" },
 	{ "keys": ["super+ctrl+right"], "command": "shift_pane" },
 	{ "keys": ["super+ctrl+left"], "command": "unshift_pane" }
 ]

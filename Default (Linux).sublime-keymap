@@ -1,3 +1,4 @@
 [
-    { "keys": ["ctrl+k", "ctrl+f"], "command": "max_pane" }
+    { "keys": ["ctrl+k", "ctrl+f"], "command": "max_pane" },
+    { "keys": ["ctrl+k", "ctrl+m"], "command": "max_editor" }
 ]

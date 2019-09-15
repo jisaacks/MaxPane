@@ -50,6 +50,10 @@ def sublime_text_synced(fun):
 # With ST3 layouts and maximized groups are stored persistent in the session.
 PERSIST_LAYOUTS = hasattr(sublime.Window, "settings")
 if PERSIST_LAYOUTS:
+
+    def is_editor_maximized(window):
+        return window.settings().has("max_editor")
+
     def maximized_group(window):
         return window.settings().get("max_pane", {}).get("group")
 
@@ -71,6 +75,9 @@ if PERSIST_LAYOUTS:
 # ST2 doesn't provide a window settings API to store layouts persistent.
 else:
     _store = {}
+
+    def is_editor_maximized(window):
+        return False
 
     def maximized_group(window):
         return _store.get(window.id(), {}).get("group")
@@ -179,7 +186,59 @@ class ShareManager:
         cls.check_and_submit()
 
 
+class MaxEditorCommand(sublime_plugin.WindowCommand):
+    def is_enabled(self):
+        return PERSIST_LAYOUTS
+
+    def is_visible(self):
+        return PERSIST_LAYOUTS
+
+    def run(self, maximized=None):
+        w = self.window
+        s = w.settings()
+
+        max_editor = s.get("max_editor")
+
+        if maximized is True and max_editor is not None:
+            return
+        if maximized is False and max_editor is None:
+            return
+
+        if max_editor:
+            # restore normal state from session
+            w.set_menu_visible(max_editor.get("menu_visible", True))
+            w.set_minimap_visible(max_editor.get("minimap_visible", True))
+            w.set_sidebar_visible(max_editor.get("sidebar_visible", True))
+            w.set_status_bar_visible(max_editor.get("status_bar_visible", True))
+            w.set_tabs_visible(max_editor.get("tabs_visible", True))
+            if not max_editor.get("group_maximized", False):
+                unmaximize_group(w)
+            s.erase("max_editor")
+
+        else:
+            # store current state in session
+            group_maximized = is_group_maximized(w)
+            s.set("max_editor", {
+                "menu_visible": w.is_menu_visible(),
+                "minimap_visible": w.is_minimap_visible(),
+                "sidebar_visible": w.is_sidebar_visible(),
+                "status_bar_visible": w.is_status_bar_visible(),
+                "tabs_visible": w.get_tabs_visible(),
+                "group_maximized": group_maximized
+            })
+            w.set_menu_visible(False)
+            w.set_minimap_visible(False)
+            w.set_sidebar_visible(False)
+            w.set_status_bar_visible(False)
+            w.set_tabs_visible(False)
+            if not group_maximized:
+                maximize_active_group(w)
+
+
 class MaxPaneCommand(sublime_plugin.WindowCommand):
+    def is_enabled(self):
+        return not is_editor_maximized(self.window)
+
     def run(self):
         w = self.window
         if is_group_maximized(w):
@@ -189,11 +248,17 @@ class MaxPaneCommand(sublime_plugin.WindowCommand):
 
 
 class MaximizePaneCommand(sublime_plugin.WindowCommand):
+    def is_enabled(self):
+        return not is_editor_maximized(self.window)
+
     def run(self):
         maximize_active_group(self.window)
 
 
 class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
+    def is_enabled(self):
+        return not is_editor_maximized(self.window)
+
     def run(self):
         unmaximize_group(self.window)
 
