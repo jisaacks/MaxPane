@@ -124,6 +124,7 @@ def maximize_active_group(window):
     window.focus_group(group)
     for view in window.views():
         view.set_status('0_maxpane', 'MAX')
+    ShareManager.add(window.id())
 
 
 def unmaximize_group(window):
@@ -141,6 +142,7 @@ def unmaximize_group(window):
         window.focus_group(group)
     for view in window.views():
         view.erase_status('0_maxpane')
+    ShareManager.remove(window.id())
 
 
 def distribute(values):
@@ -182,9 +184,7 @@ class MaxPaneCommand(sublime_plugin.WindowCommand):
         w = self.window
         if is_group_maximized(w):
             unmaximize_group(w)
-            ShareManager.remove(w.id())
         elif w.num_groups() > 1:
-            ShareManager.add(w.id())
             maximize_active_group(w)
 
 
