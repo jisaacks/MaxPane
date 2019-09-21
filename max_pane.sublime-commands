@@ -1,5 +1,9 @@
 [
   {
+    "caption": "Maximize/Unmaximize editor",
+    "command": "max_editor"
+  },
+  {
     "caption": "Maximize/Unmaximize pane",
     "command": "max_pane"
   },
