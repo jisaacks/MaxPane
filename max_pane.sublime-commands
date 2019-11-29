@@ -6,13 +6,5 @@
   {
     "caption": "Maximize/Unmaximize pane",
     "command": "max_pane"
-  },
-  {
-    "caption": "Switch to next pane",
-    "command": "shift_pane"
-  },
-  {
-    "caption": "Switch to previous pane",
-    "command": "unshift_pane"
   }
 ]

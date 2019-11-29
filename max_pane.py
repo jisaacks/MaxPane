@@ -263,18 +263,6 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
         unmaximize_group(self.window)
 
 
-class ShiftPaneCommand(sublime_plugin.WindowCommand):
-    def run(self):
-        w = self.window
-        w.focus_group((w.active_group() + 1) % w.num_groups())
-
-
-class UnshiftPaneCommand(sublime_plugin.WindowCommand):
-    def run(self):
-        w = self.window
-        w.focus_group((w.active_group() - 1) % w.num_groups())
-
-
 class MaxPaneEvents(sublime_plugin.EventListener):
     UNMAXIMIZE_BEFORE = frozenset((
         "carry_file_to_pane",
