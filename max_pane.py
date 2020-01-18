@@ -44,6 +44,7 @@ def sublime_text_synced(fun):
     # https://github.com/SublimeTextIssues/Core/issues/1785
     def decorator(*args, **kwargs):
         sublime.set_timeout(lambda: fun(*args, **kwargs), 10)
+
     return decorator
 
 
@@ -71,6 +72,7 @@ if PERSIST_LAYOUTS:
 
     def store_layout(window, layout, group):
         window.settings().set("max_pane", {"layout": layout, "group": group})
+
 
 # ST2 doesn't provide a window settings API to store layouts persistent.
 else:
@@ -117,20 +119,22 @@ def maximize_active_group(window):
     cells = layout["cells"]
     current_col = int(cells[group][2])
     current_row = int(cells[group][3])
-    window.set_layout({
-        "rows": [
-            0.0 if index < current_row else 1.0
-            for index, row in enumerate(layout["rows"])
-        ],
-        "cols": [
-            0.0 if index < current_col else 1.0
-            for index, col in enumerate(layout["cols"])
-        ],
-        "cells": cells
-    })
+    window.set_layout(
+        {
+            "rows": [
+                0.0 if index < current_row else 1.0
+                for index, row in enumerate(layout["rows"])
+            ],
+            "cols": [
+                0.0 if index < current_col else 1.0
+                for index, col in enumerate(layout["cols"])
+            ],
+            "cells": cells,
+        }
+    )
     window.focus_group(group)
     for view in window.views():
-        view.set_status('0_maxpane', 'MAX')
+        view.set_status("0_maxpane", "MAX")
     ShareManager.add(window.id())
 
 
@@ -148,7 +152,7 @@ def unmaximize_group(window):
         window.set_layout(layout)
         window.focus_group(group)
     for view in window.views():
-        view.erase_status('0_maxpane')
+        view.erase_status("0_maxpane")
     ShareManager.remove(window.id())
 
 
@@ -160,20 +164,23 @@ def distribute(values):
 class ShareManager:
     """Exposes a list of window ids which currently contain maximized panes.
        Shared via an in-memory .sublime-settings file."""
+
     maxed_wnds = set([])
     previous = set([])
 
     @classmethod
     def is_blocked(cls):
-        return sublime.load_settings(
-            'max_pane_share.sublime-settings').get('block_max_pane')
+        return sublime.load_settings("max_pane_share.sublime-settings").get(
+            "block_max_pane"
+        )
 
     @classmethod
     def check_and_submit(cls):
         if cls.maxed_wnds != cls.previous:
             cls.previous = cls.maxed_wnds
-            sublime.load_settings('max_pane_share.sublime-settings').set(
-                "maxed_wnds", list(cls.maxed_wnds))
+            sublime.load_settings("max_pane_share.sublime-settings").set(
+                "maxed_wnds", list(cls.maxed_wnds)
+            )
 
     @classmethod
     def add(cls, id):
@@ -218,14 +225,17 @@ class MaxEditorCommand(sublime_plugin.WindowCommand):
         else:
             # store current state in session
             group_maximized = is_group_maximized(w)
-            s.set("max_editor", {
-                "menu_visible": w.is_menu_visible(),
-                "minimap_visible": w.is_minimap_visible(),
-                "sidebar_visible": w.is_sidebar_visible(),
-                "status_bar_visible": w.is_status_bar_visible(),
-                "tabs_visible": w.get_tabs_visible(),
-                "group_maximized": group_maximized
-            })
+            s.set(
+                "max_editor",
+                {
+                    "menu_visible": w.is_menu_visible(),
+                    "minimap_visible": w.is_minimap_visible(),
+                    "sidebar_visible": w.is_sidebar_visible(),
+                    "status_bar_visible": w.is_status_bar_visible(),
+                    "tabs_visible": w.get_tabs_visible(),
+                    "group_maximized": group_maximized,
+                },
+            )
             w.set_menu_visible(False)
             w.set_minimap_visible(False)
             w.set_sidebar_visible(False)
@@ -264,19 +274,21 @@ class UnmaximizePaneCommand(sublime_plugin.WindowCommand):
 
 
 class MaxPaneEvents(sublime_plugin.EventListener):
-    UNMAXIMIZE_BEFORE = frozenset((
-        "carry_file_to_pane",
-        "clone_file_to_pane",
-        "create_pane",
-        "create_pane_with_file",
-        "destroy_pane",
-        "move_to_group",
-        "move_to_neighbouring_group",
-        "new_pane",
-        "project_manager",
-        "set_layout",
-        "travel_to_pane"
-    ))
+    UNMAXIMIZE_BEFORE = frozenset(
+        (
+            "carry_file_to_pane",
+            "clone_file_to_pane",
+            "create_pane",
+            "create_pane_with_file",
+            "destroy_pane",
+            "move_to_group",
+            "move_to_neighbouring_group",
+            "new_pane",
+            "project_manager",
+            "set_layout",
+            "travel_to_pane",
+        )
+    )
 
     def on_window_command(self, window, command_name, args):
         if ShareManager.is_blocked():
@@ -310,4 +322,4 @@ def plugin_loaded():
         for window in sublime.windows():
             if is_group_maximized(window):
                 for view in window.views():
-                    view.set_status('0_maxpane', 'MAX')
+                    view.set_status("0_maxpane", "MAX")
