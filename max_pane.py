@@ -53,25 +53,25 @@ PERSIST_LAYOUTS = hasattr(sublime.Window, "settings")
 if PERSIST_LAYOUTS:
 
     def is_editor_maximized(window):
-        return window.settings().has("max_editor")
+        return window.template_settings().has("max_editor")
 
     def maximized_group(window):
-        return window.settings().get("max_pane", {}).get("group")
+        return window.template_settings().get("max_pane", {}).get("group")
 
     def active_layout(window):
         return window.layout()
 
     def has_stored_layout(window):
-        return window.settings().has("max_pane")
+        return window.template_settings().has("max_pane")
 
     def pop_stored_layout(window):
-        settings = window.settings()
+        settings = window.template_settings()
         layout = settings.get("max_pane", {}).get("layout")
         settings.erase("max_pane")
         return layout
 
     def store_layout(window, layout, group):
-        window.settings().set("max_pane", {"layout": layout, "group": group})
+        window.template_settings().set("max_pane", {"layout": layout, "group": group})
 
 
 # ST2 doesn't provide a window settings API to store layouts persistent.
@@ -202,7 +202,7 @@ class MaxEditorCommand(sublime_plugin.WindowCommand):
 
     def run(self, maximized=None):
         w = self.window
-        s = w.settings()
+        s = w.template_settings()
 
         max_editor = s.get("max_editor")
 
