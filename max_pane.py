@@ -165,8 +165,8 @@ class ShareManager:
     """Exposes a list of window ids which currently contain maximized panes.
        Shared via an in-memory .sublime-settings file."""
 
-    maxed_wnds = set([])
-    previous = set([])
+    maxed_wnds = set()
+    previous = set()
 
     @classmethod
     def is_blocked(cls):
